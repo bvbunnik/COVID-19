@@ -6,4 +6,11 @@ CONFIG -= qt
 LIBS += -L/usr/local/lib -lgsl -lgslcblas -lm
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+    solvebeta.cpp
+
+DISTFILES += \
+    parameters_used.txt
+
+HEADERS += \
+    solvebeta.h

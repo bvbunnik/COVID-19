@@ -16,12 +16,13 @@ typedef struct model_params{
 
 int odes(double t, const double y[], double f[], void *params);
 int scenario0(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu);
-int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction);
-int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction);
-int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream& output, double beta, double mu, double beta_fraction);
+int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min=0);
+int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min=0);
+int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream& output, double beta, double mu, double beta_fraction, double beta_min=0);
+
 int scenario3_rampup(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu);
-int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction);
-int scenario5(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction);
+int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min=0);
+int scenario5(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min=0);
 
 
 double gentime(double T2, double R0){
@@ -50,12 +51,12 @@ int main()
     int simtime = 365;
     int intervention_start_day = 41;
     int intervention_duration = (7*12);
-    double beta_fraction = 1.0/2.0;
-    string filename = "/home/bram/Documents/Alex/COVID-19/output/output_all_scenarios_R0=2_beta=0.5.csv";
+    double beta_fraction = 0.25;
+    string filename = "/home/bram/Documents/Alex/COVID-19/output/output_all_scenarios_final.csv";
     ofstream output(filename, ios::out);
     output << "t,S,I,R,C,beta,scen\n";
     scenario0(simtime, intervention_start_day, intervention_duration, output, beta, mu);
-    scenario1(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
+    scenario1(simtime, intervention_start_day, intervention_duration, output, beta, mu, 0.625);
     scenario2(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
     scenario3(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
     scenario4(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
@@ -85,7 +86,7 @@ int scenario0(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     return 0;
 }
 
-int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
@@ -103,7 +104,12 @@ int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     }
     for (int i = onset_tprime; i<(onset_tprime+duration_tprime); ++i){
         double ti = t+1.0;
-        double beta1 = (1-(beta_fraction+(0.5*beta_fraction)))*beta;
+        double beta1;
+        if (beta_min==0.0){
+            beta1 = beta_fraction*beta;
+        } else {
+            beta1=beta_min;
+        }
         pars = {beta1, mu};
         int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
         if (status != GSL_SUCCESS){
@@ -128,9 +134,14 @@ int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
 }
 
 
-int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
-    double beta_decrease = (beta-beta_fraction*beta)/duration_tprime;
+    double beta_decrease;
+    if (beta_min==0.0){
+        beta_decrease = (beta-beta_fraction*beta)/duration_tprime;
+    } else {
+        beta_decrease = (beta-beta_min)/duration_tprime;
+    }
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
     gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
@@ -173,9 +184,14 @@ int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     return 0;
 }
 
-int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
-    double beta_decrease = (beta-beta_fraction*beta)/duration_tprime;
+    double beta_decrease;
+    if (beta_min==0.0){
+        beta_decrease = (beta-beta_fraction*beta)/duration_tprime;
+    } else {
+        beta_decrease = (beta-beta_min)/duration_tprime;
+    }
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
     gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
@@ -217,9 +233,14 @@ int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     return 0;
 }
 
-int scenario3_rampup(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario3_rampup(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
-    double beta_decrease = (beta-beta_fraction*beta)/4;
+    double beta_decrease;
+    if (beta_min==0.0){
+        beta_decrease = (beta-beta_fraction*beta)/4.0;
+    } else {
+        beta_decrease = (beta-beta_min)/4.0;
+    }
     int duration = (duration_tprime/4);
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
@@ -303,9 +324,14 @@ int scenario3_rampup(int simtime, int onset_tprime, int duration_tprime, ofstrea
 }
 
 
-int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
-    double beta_change = (beta-beta_fraction*beta)/(duration_tprime/2);
+    double beta_change;
+    if (beta_min==0.0){
+        beta_change = (beta-beta_fraction*beta)/(duration_tprime/2);
+    } else {
+        beta_change = (beta-beta_min)/(duration_tprime/2);
+    }
     double beta_temp=0;
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
@@ -362,9 +388,15 @@ int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     return 0;
 }
 
-int scenario5(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction)
+int scenario5(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_fraction, double beta_min)
 {
-    double beta_low = beta_fraction*beta;
+    double beta_low;
+    if (beta_min==0.0){
+        beta_low = beta_fraction*beta;
+    } else {
+        beta_low = beta_min;
+    }
+
     int duration = 14;
     model_params pars = {beta, mu};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
