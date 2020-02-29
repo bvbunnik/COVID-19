@@ -51,16 +51,16 @@ int main()
     int simtime = 365;
     int intervention_start_day = 41;
     int intervention_duration = (7*12);
-    double beta_fraction = 0.25;
-    string filename = "/home/bram/Documents/Alex/COVID-19/output/output_all_scenarios_final.csv";
+    double beta_fraction = 1.0/4.0;
+    string filename = "/home/bram/Documents/Alex/COVID-19/output/output_scenario3_beta=0.25_final.csv";
     ofstream output(filename, ios::out);
     output << "t,S,I,R,C,beta,scen\n";
-    scenario0(simtime, intervention_start_day, intervention_duration, output, beta, mu);
-    scenario1(simtime, intervention_start_day, intervention_duration, output, beta, mu, 0.625);
-    scenario2(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
-    scenario3(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
-    scenario4(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
-    scenario5(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction);
+    //scenario0(simtime, intervention_start_day, intervention_duration, output, beta, mu);
+    //scenario1(simtime, intervention_start_day, intervention_duration, output, beta, mu, 0.625, 0.1001);
+    //scenario2(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction,0.0288);
+    scenario3(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction,0.1733);
+    //scenario4(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction,0.0288);
+    //scenario5(simtime, intervention_start_day, intervention_duration, output, beta, mu, beta_fraction,0.0288);
 
     output.close();
     return 0;

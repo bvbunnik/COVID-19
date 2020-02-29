@@ -60,3 +60,26 @@ mu = 0.116
 
 for scenario1: beta(t') = 0.75*beta = 0.1732
 for scenarios2-5: beta(t') = 0.5*beta = 0.116
+
+----------------------------------
+Lower R0
+----------------------------------
+R0=1.5
+Doubling time = 6
+beta = 0.347
+mu = 0.231
+
+for scenario 1: beta(t') = (1-0.0401)*beta = 0.333
+for scenarios 2-5: beta(t') = beta/3 = 0.116
+
+
+--------------------------------
+Even less reduction of beta
+--------------------------------
+R0=2
+Doubling time = 6
+beta = 0.231
+mu = 0.116
+
+for scenario1: beta(t') = (1-0.125)*beta = 0.202
+for scenario 2-5: beta(t') = 0.75*beta = 0.1733
