@@ -1,3 +1,15 @@
+/**
+@file main.cpp
+*/
+/** \mainpage COVID-19 SIR model
+ * Author: Bram van Bunnik
+ * E-mail: bram.vanbunnik@ed.ac.uk
+ * Simulate the effects of SDM during an outbreak of COVID-19.\n
+ * Date: 01-03-2020
+ *
+ */
+
+
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
