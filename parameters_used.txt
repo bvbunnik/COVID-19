@@ -1,4 +1,5 @@
 Parameters used:
+
 ------------------
 Baseline scenario:
 ------------------
@@ -32,11 +33,12 @@ beta(t')=beta, beta(t'+1)=beta_r, beta(t'+3)=beta,beta(t'+5)=beta_r, beta(t'+7)=
 Shortened / extended intervention:
 ----------------------------------
 Shortened intervetion: duration: 10 weeks
-reduced beta for scenarios 2-5: 0.003
+reduced beta for S1: 0.12705
+reduced beta for scenarios 2-5: 0.0321
 
 Extended intervetion: duration: 14 weeks
-reduced beta for scenarios 2-5: 0.082
-
+reduced beta for S1: 0.15675
+reduced beta for scenarios 2-5: 0.083
 
 ----------------------------------
 Higher R0
@@ -49,9 +51,8 @@ mu = 0.058
 for scenario 1: beta(t')= (1-0.417)*beta = 0.1001
 for scenarios 2-5: beta(t') = beta/6 = 0.0288
 
-
 ---------------------------------
-Less reduction of beta`
+Less reduction of beta
 ---------------------------------
 R0=2
 Doubling time = 6
@@ -69,9 +70,8 @@ Doubling time = 6
 beta = 0.347
 mu = 0.231
 
-for scenario 1: beta(t') = (1-0.0401)*beta = 0.333
+for scenario 1: beta(t') = (1-0.1666)*beta = 0.289
 for scenarios 2-5: beta(t') = beta/3 = 0.116
-
 
 --------------------------------
 Even less reduction of beta
