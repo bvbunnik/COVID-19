@@ -50,6 +50,13 @@ create_plot(shortened_S3, F)
 extended_S3 <- read_csv("output_scenario3_extended_baseline.csv")
 create_plot(extended_S3, F)
 
+
+########################
+# Ramped up S3         #
+########################
+ramped_up_S3 <- read_csv("output_scenario3_rampup.csv")
+create_plot(ramped_up_S3, F)
+
 #########################
 # Increased R0          #
 #########################
