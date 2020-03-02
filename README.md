@@ -1,5 +1,5 @@
 # COVID-19
-Code for modelling the effect of social deprivation measures on COVID-19 using a simple SIR model.
+Code for modelling the effect of social distancing measures on COVID-19 using a simple SIR model.
 
 C++ code uses routines from the GNU Scientific Library (GSL) (https://www.gnu.org/software/gsl/), spefically the functions contained in the Ordinary Differential Equation library (gsl_odeiv2.h).
 
