@@ -5,3 +5,5 @@ C++ code uses routines from the GNU Scientific Library (GSL) (https://www.gnu.or
 
 C++ code has been tested to work with the g++ compiler (version 7.4.0).
 To compile run: `g++ -std=c++11  main.cpp -lgsl -lgslcblas -lm -o covid-19`.
+
+COVID-19 modelling code was implemented independently using R and C++ (3.6.2). ODEs were solved using the "desolve" (1.27.1) package in R.  
