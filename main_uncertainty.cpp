@@ -82,15 +82,16 @@ int vary_intervention_start()
     intervention_duration = (7*12);
     output_dir = "/media/bram/DATA/covid-19/output/";
     
-    filename = output_dir + "scenario1-5_vary_startday1.csv";
+    filename = output_dir + "scenario1-5_vary_startday2.csv";
     output.open(filename, ios::out);
     output << "t,S,I,R,C,beta,scen,start_day,duration,R0\n";
     double beta_min=(beta*(1-0.375));
+
     for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
         scenario1(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
     }
     int duration_cycle = 14;
-    beta_min=(beta*(1-0.375))/2.0;
+    beta_min=(beta*(1.0-0.375))/2.0;
     for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
         scenario2(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
         scenario3(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
