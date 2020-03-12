@@ -31,7 +31,7 @@ typedef struct model_params{
 int odes(double t, const double y[], double f[], void *params);
 int scenario0(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
 int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
-int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min);
+int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, int duration_tprime1, ofstream &output, double beta, double gamma, double beta_min);
 int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
 int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream& output, double beta, double gamma, double beta_min, double R0);
 int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
@@ -74,7 +74,7 @@ int main()
 int multiple_intervention()
 {
     double R0, T2, beta, gamma;
-    int simtime, intervention_start_day1, intervention_duration;
+    int simtime, intervention_start_day1, intervention_duration, intervention_duration1, intervention_duration2;
     string output_dir, filename;
     ofstream output;
 
@@ -86,7 +86,7 @@ int multiple_intervention()
     beta = gamma*1.5;
     simtime = 364*2;
 
-    intervention_duration = (7*12);
+    //intervention_duration1 = (7*12);
     output_dir = "/media/bram/DATA/covid-19/output/";
 
     filename = output_dir + "scenario1_multiple_interventions_extended_range.csv";
@@ -96,7 +96,16 @@ int multiple_intervention()
     double beta_min=beta*0.4;
     for (intervention_start_day1 = 0; intervention_start_day1<=560; ++intervention_start_day1){
         for (int intervention_start_day2 = intervention_start_day1+intervention_duration; intervention_start_day2 <= simtime-intervention_duration; ++intervention_start_day2){
-            scenario1_mult_int(simtime, intervention_start_day1, intervention_start_day2, intervention_duration, output, beta, gamma, beta_min);
+            scenario1_mult_int(simtime, intervention_start_day1, intervention_start_day2, intervention_duration, intervention_duration, output, beta, gamma, beta_min);
+        }
+    }
+    for (intervention_start_day1 = 0; intervention_start_day1<=560; ++intervention_start_day1){
+        for (intervention_duration1 = 4*7; intervention_duration1<=20*7; intervention_duration1+=7){
+            for (int intervention_start_day2 = intervention_start_day1+intervention_duration1; intervention_start_day2 <= simtime-intervention_duration1; ++intervention_start_day2){
+                for (intervention_duration2 = 4*7; intervention_duration2<=20*7; intervention_duration2+=7){
+                    scenario1_mult_int(simtime, intervention_start_day1, intervention_start_day2, intervention_duration1, intervention_duration2, output, beta, gamma, beta_min);
+                }
+            }
         }
     }
     return 0;
@@ -348,7 +357,7 @@ int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
 }
 
 
-int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min)
+int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, int duration_tprime1, ofstream &output, double beta, double gamma, double beta_min)
 {
     model_params pars = {beta, gamma};
     gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
@@ -362,7 +371,7 @@ int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int dur
             printf ("error, return value=%d\n", status);
             return 1;
         }
-        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta << ",1," << onset_tprime << "," << onset_tprime1 << "," << duration_tprime << "," << duration_tprime1 << "\n";
     }
     for (int i = onset_tprime; i<(onset_tprime+duration_tprime); ++i){
         double ti = t+1.0;
@@ -374,7 +383,7 @@ int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int dur
             printf ("error, return value=%d\n", status);
             return 1;
         }
-        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "," << duration_tprime << "," << duration_tprime1 << "\n";
     }
     for (int i = (onset_tprime+duration_tprime); i<onset_tprime1; ++i){
         double ti = t+1.0;
@@ -385,9 +394,9 @@ int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int dur
             printf ("error, return value=%d\n", status);
             return 1;
         }
-        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 <<"\n";
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "," << duration_tprime << "," << duration_tprime1 <<"\n";
     }
-    for (int i = onset_tprime1; i<(onset_tprime1+duration_tprime); ++i){
+    for (int i = onset_tprime1; i<(onset_tprime1+duration_tprime1); ++i){
         double ti = t+1.0;
         double beta1;
         beta1=beta_min;
@@ -397,9 +406,9 @@ int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int dur
             printf ("error, return value=%d\n", status);
             return 1;
         }
-        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "," << duration_tprime << "," << duration_tprime1 << "\n";
     }
-    for (int i = (onset_tprime1+duration_tprime); i<=simtime; ++i){
+    for (int i = (onset_tprime1+duration_tprime1); i<=simtime; ++i){
         double ti = t+1.0;
         double beta1 = beta;
         pars = {beta1, gamma};
@@ -408,7 +417,7 @@ int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int dur
             printf ("error, return value=%d\n", status);
             return 1;
         }
-        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 <<"\n";
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "," << duration_tprime << "," << duration_tprime1 << "\n";
     }
     gsl_odeiv2_driver_free(d);
     return 0;
