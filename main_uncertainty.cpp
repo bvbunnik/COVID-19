@@ -31,6 +31,7 @@ typedef struct model_params{
 int odes(double t, const double y[], double f[], void *params);
 int scenario0(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
 int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
+int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min);
 int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
 int scenario3(int simtime, int onset_tprime, int duration_tprime, ofstream& output, double beta, double gamma, double beta_min, double R0);
 int scenario4(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min, double R0);
@@ -39,6 +40,8 @@ int vary_intervention_start();
 int vary_R0();
 int vary_beta_red();
 int vary_T2();
+int multiple_intervention();
+
 
 double gentime(double T2, double R0){
   double G = T2 * ((R0-1)/log(2));
@@ -59,12 +62,46 @@ int odes(double t, const double y[], double f[], void *params)
 
 int main()
 {
-    vary_intervention_start();
+    //vary_intervention_start();
     //vary_R0();
     //vary_beta_red();
     //vary_T2();
+    multiple_intervention();
     return 0;
 }
+
+
+int multiple_intervention()
+{
+    double R0, T2, beta, gamma;
+    int simtime, intervention_start_day1, intervention_duration;
+    string output_dir, filename;
+    ofstream output;
+
+    R0 = 2.4;
+    T2 = 4.6;
+    //beta = R0*(1/gentime(T2,R0));
+    gamma = 1/gentime(T2,R0);
+    //reduced beta due to background reduction (37.5% reduction)
+    beta = gamma*1.5;
+    simtime = 364*2;
+
+    intervention_duration = (7*12);
+    output_dir = "/media/bram/DATA/covid-19/output/";
+
+    filename = output_dir + "scenario1_multiple_interventions_extended_range.csv";
+    output.open(filename, ios::out);
+    output << "t,S,I,R,C,beta,scen,start_day1,start_day2\n";
+    //beta_min is further reduced by 40% to get to a total reduction of 75% of original R0
+    double beta_min=beta*0.4;
+    for (intervention_start_day1 = 0; intervention_start_day1<=560; ++intervention_start_day1){
+        for (int intervention_start_day2 = intervention_start_day1+intervention_duration; intervention_start_day2 <= simtime-intervention_duration; ++intervention_start_day2){
+            scenario1_mult_int(simtime, intervention_start_day1, intervention_start_day2, intervention_duration, output, beta, gamma, beta_min);
+        }
+    }
+    return 0;
+}
+
 
 int vary_intervention_start()
 {
@@ -73,31 +110,33 @@ int vary_intervention_start()
     string output_dir, filename;
     ofstream output;
 
-    R0 = 2.0;
-    T2 = 6.0;
-    beta = R0*(1/gentime(T2,R0));
+    R0 = 2.4;
+    T2 = 4.6;
+    //beta = R0*(1/gentime(T2,R0));
     gamma = 1/gentime(T2,R0);
-    simtime = 365;
+    //reduced beta due to background reduction (37.5% reduction)
+    beta = gamma*1.5;
+    simtime = 364*2;
    
     intervention_duration = (7*12);
     output_dir = "/media/bram/DATA/covid-19/output/";
     
-    filename = output_dir + "scenario1-5_vary_startday2.csv";
+    filename = output_dir + "scenario1_new_paras.csv";
     output.open(filename, ios::out);
     output << "t,S,I,R,C,beta,scen,start_day,duration,R0\n";
-    double beta_min=(beta*(1-0.375));
+    double beta_min=beta*0.4;
 
-    for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
+    for (intervention_start_day = 1; intervention_start_day<=simtime-intervention_duration; ++intervention_start_day){
         scenario1(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
     }
-    int duration_cycle = 14;
-    beta_min=(beta*(1.0-0.375))/2.0;
-    for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
-        scenario2(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
-        scenario3(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
-        scenario4(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
-        scenario5(simtime, intervention_start_day,duration_cycle, output, beta, gamma, beta_min,R0);
-    }
+//    int duration_cycle = 14;
+//    beta_min=(beta*(1.0-0.375))/2.0;
+//    for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
+//        scenario2(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
+//        scenario3(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
+//        scenario4(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta_min,R0);
+//        scenario5(simtime, intervention_start_day,duration_cycle, output, beta, gamma, beta_min,R0);
+//    }
     output.close();
     return 0;
 }
@@ -212,6 +251,40 @@ int vary_T2(){
     return 0;
 }
 
+
+int vary_start_duration()
+{
+    double R0, T2, beta, gamma;
+    int simtime, intervention_start_day, intervention_duration, duration_cycle;
+    string output_dir, filename;
+    ofstream output;
+
+    //Baseline, R0=2, T2=6, reduced R0=0.5, t'=41, duration = 12 weeks
+    R0 = 2;
+    T2 = 6;
+    beta = R0*(1/gentime(T2,R0));
+    gamma = 1/gentime(T2,R0);
+    simtime = 365;
+    double beta_red=0.375;
+    intervention_duration = (7*12);
+    //calc_beta_min(beta, fraction, old duration, new_duration);
+    duration_cycle = 14;
+    output_dir = "/media/bram/DATA/covid-19/output/";
+
+    filename = output_dir + "scenario1_startday+duration.csv";
+    output.open(filename, ios::out);
+    output << "t,S,I,R,C,beta,scen,start_day,duration,R0\n";
+    for (intervention_start_day = 1; intervention_start_day<=100; ++intervention_start_day){
+        for (intervention_duration=1; intervention_duration<=16*7;++intervention_duration){
+            scenario1(simtime, intervention_start_day, intervention_duration, output, beta, gamma, beta*(1.0-beta_red),R0);
+        }
+    }
+    output.close();
+    return 0;
+}
+
+
+
 int scenario0(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_min, double R0)
 {
     model_params pars = {beta, mu};
@@ -273,6 +346,74 @@ int scenario1(int simtime, int onset_tprime, int duration_tprime, ofstream &outp
     gsl_odeiv2_driver_free(d);
     return 0;
 }
+
+
+int scenario1_mult_int(int simtime, int onset_tprime, int onset_tprime1, int duration_tprime, ofstream &output, double beta, double gamma, double beta_min)
+{
+    model_params pars = {beta, gamma};
+    gsl_odeiv2_system sys = {odes, nullptr, 4, &pars};
+    gsl_odeiv2_driver *d = gsl_odeiv2_driver_alloc_y_new(&sys, gsl_odeiv2_step_rk4, 1e-6, 1e-6, 0.0);
+    double y[4] = {0.9999, 0.0001, 0.0, 0.0};
+    double t = 0.0;
+    for (int i = 0; i<onset_tprime; ++i){
+        double ti = t + 1.0;
+        int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
+        if (status != GSL_SUCCESS){
+            printf ("error, return value=%d\n", status);
+            return 1;
+        }
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+    }
+    for (int i = onset_tprime; i<(onset_tprime+duration_tprime); ++i){
+        double ti = t+1.0;
+        double beta1;
+        beta1=beta_min;
+        pars = {beta1, gamma};
+        int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
+        if (status != GSL_SUCCESS){
+            printf ("error, return value=%d\n", status);
+            return 1;
+        }
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+    }
+    for (int i = (onset_tprime+duration_tprime); i<onset_tprime1; ++i){
+        double ti = t+1.0;
+        double beta1 = beta;
+        pars = {beta1, gamma};
+        int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
+        if (status != GSL_SUCCESS){
+            printf ("error, return value=%d\n", status);
+            return 1;
+        }
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 <<"\n";
+    }
+    for (int i = onset_tprime1; i<(onset_tprime1+duration_tprime); ++i){
+        double ti = t+1.0;
+        double beta1;
+        beta1=beta_min;
+        pars = {beta1, gamma};
+        int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
+        if (status != GSL_SUCCESS){
+            printf ("error, return value=%d\n", status);
+            return 1;
+        }
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 << "\n";
+    }
+    for (int i = (onset_tprime1+duration_tprime); i<=simtime; ++i){
+        double ti = t+1.0;
+        double beta1 = beta;
+        pars = {beta1, gamma};
+        int status = gsl_odeiv2_driver_apply(d, &t, ti, y);
+        if (status != GSL_SUCCESS){
+            printf ("error, return value=%d\n", status);
+            return 1;
+        }
+        output << t << "," << y[0] << "," << y[1] << "," << y[2] << "," << y[3] << "," << beta1 << ",1," << onset_tprime << "," << onset_tprime1 <<"\n";
+    }
+    gsl_odeiv2_driver_free(d);
+    return 0;
+}
+
 
 
 int scenario2(int simtime, int onset_tprime, int duration_tprime, ofstream &output, double beta, double mu, double beta_min, double R0)
