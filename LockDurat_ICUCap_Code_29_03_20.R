@@ -18,7 +18,7 @@ GenTime <- function(T2, R0) {
 #Function to model intervention - currently set at baseline
 betastatdecrease <- function(time, int_timestart, int_timeend) {
   ifelse((time >= int_timestart & time <= int_timeend),
-         (1.5*(1/(GenTime(4.6,2.4))))*04,
+         (1.5*(1/(GenTime(4.6,2.4))))*0.4,
          (1.5*(1/(GenTime(4.6,2.4)))))
 }
 
@@ -60,16 +60,16 @@ for(i in 1:length(duration)) {
 colnames(stats1) <- c("WeekDuration", "Time", "Infec", "Recov","Cum", "Beta")
 
 #Formatting the Data - Have shifted the x axis so that 0 is the lockdown initiation date
-combdatainf <- rbind(data.frame("WeekDuration" = "3 Weeks", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Infec[stats1$WeekDuration == "3 Weeks"]),
-                  data.frame("WeekDuration" = "12 Weeks", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Infec[stats1$WeekDuration == "12 Weeks"]))
+combdatainf <- rbind(data.frame("WeekDuration" = "3 Weeks", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Infec[stats1$WeekDuration == "3 Weeks"]),
+                  data.frame("WeekDuration" = "12 Weeks", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Infec[stats1$WeekDuration == "12 Weeks"]))
 combdatainf$WeekDuration <- factor(combdatainf$WeekDuration, levels = unique(combdatainf$WeekDuration))
 
-combdatarec <- rbind(data.frame("WeekDuration" = "3 Weeks", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Recov[stats1$WeekDuration == "3 Weeks"]),
-                   data.frame("WeekDuration" = "12 Weeks", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Recov[stats1$WeekDuration == "12 Weeks"]))
+combdatarec <- rbind(data.frame("WeekDuration" = "3 Weeks", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Recov[stats1$WeekDuration == "3 Weeks"]),
+                   data.frame("WeekDuration" = "12 Weeks", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Recov[stats1$WeekDuration == "12 Weeks"]))
 combdatarec$WeekDuration <- factor(combdatarec$WeekDuration, levels = unique(combdatarec$WeekDuration))
 
-combdatabeta <- rbind(data.frame("WeekDuration" = "3 Week Intervention", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Beta[stats1$WeekDuration == "3 Weeks"]),
-                      data.frame("WeekDuration" = "12 Week Intervention", "Time" = c(seq(-37,0), seq(1,730-37)), "Value" = stats1$Beta[stats1$WeekDuration == "12 Weeks"]))
+combdatabeta <- rbind(data.frame("WeekDuration" = "3 Week Intervention", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Beta[stats1$WeekDuration == "3 Weeks"]),
+                      data.frame("WeekDuration" = "12 Week Intervention", "Time" = c(seq(-100,0), seq(1,730-100)), "Value" = stats1$Beta[stats1$WeekDuration == "12 Weeks"]))
 combdatabeta$WeekDuration <- factor(combdatabeta$WeekDuration, levels = unique(combdatabeta$WeekDuration))
 
 #Quick Analysis of Highest Peak
